@@ -1,0 +1,32 @@
+{% extends '../base.twig' %}
+
+{% block content %}
+    <h2>Uprav podujatie</h2>
+
+    <form action="../uprav_podujatie/{{ podujatie.id }}" >
+        <label for="Nazov">Názov</label><br>
+        <input type="text" id="Nazov" name="nazov" value="{{ podujatie.meno }}"><br>
+        <label for="Datum"></label>Dátum<br>
+        <input type="date" id="Datum" name="datum" value="{{ podujatie.datum | date('Y-m-d')}}"><br>
+        <label for="Opis"></label>Opis podujatia<br>
+        <input type="text" id="Opis" name="opis" value="{{ podujatie.opis }}"><br>
+        <label for="Miesto"></label>Miesto konania<br>
+        <input type="text" id="Miesto" name="miesto" value="{{ podujatie.miesto }}"><br><br>
+        <label for="category">Typ podujatia</label><br>
+        <select class="form-control" id="category" name="typ" value="{{ podujatie.typ }}">
+            <option value="">Nemeniť</option>
+            <option value="4">Koncert</option>
+            <option value="2">Divadlo</option>
+            <option value="1">Film</option>
+            <option value="3">Festival</option>
+        </select>
+        <label for="Kraj"></label>Kraj konania<br>
+        <select class="form-control" id="region" name="kraj" value="{{ podujatie.kraj }}">
+            <option value="">Nezmeniť!</option>
+            <option value="1">Bratislavský kraj</option>
+            <option value="2">Banskobystrický kraj</option>
+            <option value="3">Nitrianský kraj</option>
+        </select>
+        <input type="submit" value="ZMENIŤ">
+    </form>
+{% endblock %}

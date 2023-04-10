@@ -1,0 +1,23 @@
+{% extends '../base.twig' %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-4 offset-4">
+            <form action="/user/password" method="post" class="mt-4">
+                <div class="card">
+                    <div class="card-header">Prihláste sa, prosím</div>
+                    <div class="card-body">
+                        <label>Zadajte prve heslo</label>
+                        <input class="form-control" type="password" name="password1" placeholder="Zadajte prve heslo">
+                        <label>Zadajte druhe heslo</label>
+                        <input class="form-control" type="password" name="password2" placeholder="Opakujte heslo.">
+                        <input class="btn btn-success mt-4 float-end" type="submit" value="Zmenit heslo">
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}
+
+
+

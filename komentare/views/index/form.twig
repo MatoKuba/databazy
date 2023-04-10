@@ -1,0 +1,57 @@
+{% extends '../base.twig' %}
+
+{% block content %}
+    <h2>Formular</h2>
+
+    <form action="/form" method="post">
+        <div class="row">
+            <div class="col-12">
+                <h3>Textové pole</h3>
+                <input class="form-control" type="text" name="textove_pole" placeholder="Textové pole">
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <h3>Dlhy text</h3>
+                <textarea name="dlhy_text"></textarea>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <h3>Výber z viacerých možností</h3>
+                <h4>Roletkove menu</h4>
+                <select class="form-control" name="vyber_1">
+                    <option value="m1">Moznost 1</option>
+                    <option value="m2">Moznost 2</option>
+                    <option value="m3">Moznost 3</option>
+                    <option value="m4">Moznost 4</option>
+                </select>
+                <h4>Radio buttons</h4>
+                <input type="radio" name="vyber_2" value="m1" checked="checked"> Moznost 1<br>
+                <input type="radio" name="vyber_2" value="m2"> Moznost 2
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <h3>Výber viacerých možností</h3>
+                <select class="form-control" name="vyber_3" multiple>
+                    <option value="m1">Moznost 1</option>
+                    <option value="m2">Moznost 2</option>
+                    <option value="m3">Moznost 3</option>
+                    <option value="m4">Moznost 4</option>
+                </select>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <h3>Zaškrtávacie pole</h3>
+                <input type="checkbox" name="vyber_4" value="ano"> Súhlasím so spracovaním osobných údajov.
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <input type="submit" value="Odoslat">
+            </div>
+        </div>
+    </form>
+{% endblock %}
