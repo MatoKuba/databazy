@@ -14,6 +14,8 @@
     <input type="text" id="column" name="column" value="0">
         <label for="value">Value:</label>
         <input type="text" id="value" name="value" value="">
+        <label for="where">WHERE</label>
+        <input type="text" id="where" name="where" value="">
     </form>
 
     <table id="myTable" border="1" style="width: 50%; height: 100px;">
@@ -39,6 +41,54 @@
 
 
     <script>
+
+        function deleteValue() {
+            var table = document.getElementById("myTable");
+            var selectedRow = document.getElementById("row").value;
+            var selectedCol = document.getElementById("column").value;
+
+            if (selectedRow && selectedCol) {
+                var cell = table.rows[selectedRow - 1].cells[selectedCol - 1];
+                cell.children[0].value = "";
+            }
+            var vstup = document.getElementById("vystup");
+            vstup.innerHTML = "DELETE FROM TABLE WHERE column,row =" + selectedCol + "," + selectedRow;
+        }
+
+        function updateCell() {
+            var table = document.getElementById("myTable");
+            var selectedRow = document.getElementById("row").value;
+            var selectedCol = document.getElementById("column").value;
+            var cell = table.rows[selectedRow - 1].cells[selectedCol - 1];
+            var input = document.getElementById("value");
+            var where = document.getElementById("where");
+            cell.innerHTML = "<input type='text' name='data[" + selectedRow + "][" + selectedCol + "]' value='" + document.getElementById("value").value + "' style='border: 0; outline: 0; width: 100%; height: 100%;' readonly>";
+        }
+
+        function updateCell() {
+            var table = document.getElementById("myTable");
+            var input = document.getElementById("value").value;
+            var where = document.getElementById("where").value;
+            alert(where);
+            alert(input);
+
+            // loop through all rows and columns
+            for (var i = 0; i < table.rows.length; i++) {
+                for (var j = 0; j < table.rows[i].cells.length; j++) {
+                    var cell = table.rows[i].cells[j];
+                    alert(cell.innerHTML);
+                    // check if the cell value matches the where string
+                    if (cell.textContent === where) {
+                        // update the cell value
+                        cell.innerHTML = "<input type='text' name='data[" + i + "][" + j + "]' value='" + input + "' style='border: 0; outline: 0; width: 100%; height: 100%;' readonly>";
+                    }
+                }
+            }
+        }
+
+        //var vstup = document.getElementById("vystup");
+        //vstup.innerHTML = "UPDATE TABLE SET" + input + "WHERE" + where;
+
         function addRow() {
             var table = document.getElementById("myTable");
             var selectedRow = document.getElementById("row").value;
@@ -146,6 +196,14 @@
 
         document.getElementById("btnCreate").addEventListener("click", function() {
             createTable();
+        });
+
+        document.getElementById("btnDelete").addEventListener("click", function() {
+            deleteValue();
+        });
+
+        document.getElementById("btnUpdate").addEventListener("click", function() {
+            updateCell();
         });
     </script>
 
