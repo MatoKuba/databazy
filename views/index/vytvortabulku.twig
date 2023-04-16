@@ -1,0 +1,234 @@
+{% extends '../base.twig' %}
+{% block content %}
+    <style>
+        /* Custom CSS */
+        #myTable {
+            margin: 0 auto;
+        }
+        input[type="text"]:focus {
+            outline: 1px solid #007BFF;
+        }
+    </style>
+    <h2 class="text-center">Vytvor tabuľku</h2>
+    <form method="POST" action="script.js" class="text-center" onsubmit="event.preventDefault();">
+        <button type="submit" name="action" value="update">Update</button>
+        <button type="submit" name="action" value="insert">Insert</button>
+        <button type="submit" name="action" value="delete">Delete</button>
+        <button type="submit" name="action" value="drop">Drop</button>
+        <button type="submit" name="action" value="select">Select</button>
+        <br><br>
+        <label for="row">Row:</label>
+        <input type="number" id="row" name="row" class="form-input" placeholder="0">
+        <label for="column">Column:</label>
+        <input type="number" id="column" name="column" class="form-input" placeholder="0">
+    </form>
+
+    <table id="myTable" border="1" style="width: 50%; height: 100px;">
+        {% for i in row|default([]) %}
+            <tr>
+                {% for j in column|default([]) %}
+                    <td style="border: 1px solid black; padding: 5px;">
+                        <label>
+                            <input type="text" style="border: 0;" name="data[{{ i }}][{{ j }}]" value="{{ data[i][j]|default('') }}" onblur="updateDatabase({{ i }}, {{ j }}, this.value)" onclick="this.removeAttribute('readonly')">
+                        </label>
+                    </td>
+                {% endfor %}
+            </tr>
+        {% endfor %}
+    </table>
+
+    <div class="text-center mt-3">
+        <button type="button" id="btnInsert">Insert</button>
+        <button type="button" id="btnUpdate">Update</button>
+        <button type="button" id="btnDelete">Delete</button>
+        <button type="button" id="btnDrop">Drop</button>
+        <button type="button" id="btnCreate">Create</button>
+    </div>
+
+    <p id="vystup" class="text-center"></p>
+
+    <script>
+        function addRow() {
+            var table = document.getElementById("myTable");
+            var selectedRow = document.getElementById("row").value;
+            var selectedCol = document.getElementById("column").value;
+            var vstup = document.getElementById("vystup");
+
+            // ak nie sú vybraté žiadne riadky alebo stĺpce, pridaj nový riadok na koniec tabuľky
+            if (selectedRow === 0 || selectedCol === 0) {
+                var newRow = table.insertRow(table.rows.length);
+                for (var i = 0; i < table.rows[0].cells.length; i++) {
+                    var newCell = newRow.insertCell(i);
+                    newCell.innerHTML = "<input type='text' name='data[" + table.rows.length + "][" + (i + 1) + "]' value='' style='border: 0; outline: 0; width: 100%; height: 100%;' readonly>";
+                    newCell.style.border = "1px solid black";
+                    newCell.style.padding = "5px";
+                }
+                vstup.innerHTML = "INSERT INTO TABLE DEFAULT VALUES;"
+                return;
+            }
+
+            // ak bol zvolený riadok, pridaj hodnoty do vybraného riadka
+            var stlpec = "(" + selectedCol + ")";
+            if (selectedRow > 0) {
+                var row = table.rows[selectedRow - 1];
+                var values = document.getElementById("value").value.split(";");
+                for (var j = 0; j < values.length; j++) {
+                    var value = values[j].trim();
+                    if (selectedCol === 0) {
+                        row.insertCell(row.cells.length);
+                        selectedCol = row.cells.length;
+                    }
+                    var cell = row.cells[selectedCol - 1];
+                    cell.innerHTML = "<input type='text' name='data[" + selectedRow + "][" + selectedCol + "]' value='" + value + "' style='border: 0; outline: 0; width: 100%; height: 100%;' readonly>";
+                    cell.style.border = "1px solid black";
+                    cell.style.padding = "5px";
+                    if(selectedRow === selectedCol){
+                        vstup.innerHTML = "INSERT INTO TABLE" + stlpec + "VALUES" + "(" + values + ")" + ";";
+                    }
+                    else{
+
+                        vstup.innerHTML = "INSERT INTO TABLE VALUES" + "(" + values + ")" + ";";
+                    }
+                    selectedCol++;
+
+
+                }
+            }
+        }
+
+        function onCellValueChanged(row, col, value) {
+            if (row === 0) {
+                const oldValue = document.querySelector(`input[name="data[0][${col}]"]`).value;
+                console.log(`ALTER TABLE TABLE RENAME COLUMN ${oldValue} TO ${value};`);
+            } else {
+                console.log(`UPDATE TABLE SET column${col} = '${value}' WHERE row = ${row};`);
+            }
+
+            const columnType = getColumnType(col);
+            console.log(`ALTER TABLE TABLE MODIFY COLUMN column${col} ${columnType};`);
+        }
+
+        function getColumnType(col) {
+            const numberOfRows = document.getElementById("myTable").rows.length;
+            let allInt = true;
+            let allFloat = true;
+            let maxIntWidth = 0;
+
+            for (let i = 1; i < numberOfRows; i++) {
+                const cellValue = document.querySelector(`input[name="data[${i}][${col}]"]`).value;
+                if (cellValue) {
+                    if (/^\d+$/.test(cellValue)) {
+                        maxIntWidth = Math.max(maxIntWidth, cellValue.length);
+                    } else {
+                        allInt = false;
+                    }
+                    if (!/^\d+(\.\d+)?$/.test(cellValue)) {
+                        allFloat = false;
+                    }
+                }
+            }
+
+            if (allInt) {
+                return `INT(${maxIntWidth})`;
+            } else if (allFloat) {
+                return "FLOAT";
+            } else {
+                return "VARCHAR";
+            }
+        }
+
+        function createTable() {
+            var table = document.getElementById("myTable");
+            var selectedRow = document.getElementById("row").value;
+            var selectedCol = document.getElementById("column").value;
+            var headers = document.getElementById("value")?.value.split(";") || [];
+            var vystup = document.getElementById("vystup");
+            vystup.innerHTML = "CREATE TABLE TABLE";
+
+            if (headers.length > 0) {
+                vystup.innerHTML += "(" + headers.join(",") + ")" + ";";
+            } else {
+                vystup.innerHTML += ";";
+            }
+            while(table.rows.length > 0) {
+                table.deleteRow(0);
+            }
+
+            for (var i = 0; i < selectedRow; i++) {
+                var row = table.insertRow(table.rows.length);
+                for (var j = 0; j < selectedCol; j++) {
+                    var cell = row.insertCell(j);
+                    var value = '';
+
+                    if (headers.length > 0 && i === 0) {
+                        value = headers[j];
+                    } else if (i === 0) {
+                        value = 'column' + (j + 1);
+                    }
+
+                    var input = document.createElement('input');
+                    input.type = 'text';
+                    input.name = 'data[' + (i + 1) + '][' + (j + 1) + ']';
+                    input.value = value;
+                    input.style.border = '0';
+                    input.style.outline = '0';
+                    input.style.width = '100%';
+                    input.style.height = '100%';
+
+                    if (i === 0) {
+                        input.setAttribute('data-oldColumnName', value);
+                    }
+
+                    // Add event listener for 'keypress' event to prevent input deletion
+                    input.addEventListener('keypress', function (e) {
+                        if (e.key === 'Enter') {
+                            e.preventDefault();
+                        }
+                    });
+
+                    input.onblur = (function(currentRow, currentCol) {
+                        return function() {
+                            onCellValueChanged(currentRow + 1, currentCol + 1, this.value);
+                        };
+                    })(i, j);
+                    cell.appendChild(input);
+                    cell.style.border = '1px solid black';
+                    cell.style.padding = '5px';
+                }
+            }
+        }
+
+        function dropTable() {
+            var table = document.getElementById("myTable");
+            table.innerHTML = "";
+            var vystup = document.getElementById("vystup");
+            vystup.innerHTML = "DROP TABLE TABLE;"
+        }
+
+        // pridanie event listenerov pre tlačidlá
+        document.getElementById("btnInsert").addEventListener("click", function() {
+            addRow();
+        });
+
+        document.getElementById("btnDrop").addEventListener("click", function() {
+            dropTable();
+        });
+
+        document.getElementById("btnCreate").addEventListener("click", function() {
+            createTable();
+        });
+        // Listener for Enter key
+        const formInputs = document.querySelectorAll('.form-input');
+
+        formInputs.forEach(input => {
+            input.addEventListener('keydown', function(event) {
+                if (event.key === 'Enter') {
+                    event.preventDefault();
+                    createTable();
+                }
+            });
+        });
+
+    </script>
+
+{% endblock %}
