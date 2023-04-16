@@ -35,6 +35,7 @@ router.get("/admin", authorize('admin'), function (req, res) {
 
 router.get("/vytvor", authorize('admin'), function (req, res) {
     res.render('index/vytvortabulku.twig');
+
 });
 
 router.post("/pridaj_podujatie", authorize('admin'), async function (req, res) {
