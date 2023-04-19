@@ -13,12 +13,41 @@
     <form method="POST" action="script.js" class="text-center" onsubmit="event.preventDefault();">
         <br><br>
         <label for="row">Row:</label>
-        <input type="number" id="row" name="row" class="form-input" placeholder="0">
+        <input type="number" id="row" name="row" class="form-input" placeholder="0" min="0">
         <label for="column">Column:</label>
-        <input type="number" id="column" name="column" class="form-input" placeholder="0">
+        <input type="number" id="column" name="column" class="form-input" placeholder="0" min="0">
         <label for="name">Name:</label>
-        <input type="string" id="name" name="name" class="form-input" placeholder="nazov tabulky">
+        <input type="string" id="name" name="name" class="form-input" placeholder="nazov tabulky" required>
     </form>
+
+    <script>
+        function setInputValidation(id) {
+            const input = document.getElementById(id);
+
+            input.addEventListener('keydown', function(event) {
+                if (event.key === 'Backspace' || event.key === 'Delete') {
+                    return; // разрешаем удаление символов
+                }
+
+                if (/[-+=.e]$/.test(input.value + event.key)) {
+                    event.preventDefault();
+                }
+            });
+
+            input.addEventListener('input', function() {
+                input.value = input.value.replace(/[-+=.e]/g, '');
+
+                if (input.value === '0') {
+                    alert('0 nemožno zadať!');
+                    input.value = '';
+                }
+            });
+        }
+
+        setInputValidation('row');
+        setInputValidation('column');
+    </script>
+
 
     <table id="myTable" border="1" style="width: 50%; height: 100px;">
         {% for i in row|default([]) %}
@@ -103,13 +132,17 @@
         }
 
         function createTable() {
+            var name = document.getElementById("name").value;
+            if (!name) {
+                alert("Zadajte názov tabuľky!");
+                return;
+            }
             var table = document.getElementById("myTable");
             var selectedRow = document.getElementById("row").value;
             var selectedCol = document.getElementById("column").value;
-            var name = document.getElementById("name").value;
             var headers = document.getElementById("value")?.value.split(";") || [];
             var vystup = document.getElementById("vystup");
-            vystup.innerHTML = "CREATE TABLE " + name + ";"
+            vystup.innerHTML = "CREATE TABLE " + name
             console.log("CREATE TABLE " + name + ";")
 
             if (headers.length > 0) {
