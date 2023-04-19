@@ -1,6 +1,15 @@
-if ($_POST['action'] === 'insert') {
-    $row = $_POST['row'];
-    $column = $_POST['column'];
-    // vykonaj aktualizáciu v databáze pre konkrétny riadok a stĺpec
+import * as Db from "/../../service/MariaClient.js";
+
+/**
+ * Vratit zoznam prispevkov vratane pouzivatelskeho mena autora zoradeny posla casu vytvorenia zostupne.
+ * @returns {Promise<*>}
+ */
+
+
+async function createTables(meno,obsah) {
+    return Db.query('CREATE TABLE meno(obsah)');
 }
 
+
+
+export {createTables}

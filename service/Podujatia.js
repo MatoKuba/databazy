@@ -8,6 +8,10 @@ async function findAllPodujatia() {
     return Db.query('SELECT * FROM podujatia ORDER BY podujatia.datum ASC');
 }
 
+async function createTables(meno,obsah) {
+    return Db.query('CREATE TABLE meno(meno,obsah)');
+}
+
 async function findPodujatie(id) {
     return Db.query('SELECT * FROM podujatia where podujatia.id = :id', {id: id});
 }
@@ -42,4 +46,4 @@ async function upravPodujatie(id,nazov,miesto,kraj,typ,datum,opis) {
 }
 
 
-export {findAllPodujatia, Zorad, ZoradMeno, findPodujatie,vymazPodujatie,upravPodujatie,ZoradRegion}
+export {findAllPodujatia, Zorad, ZoradMeno, findPodujatie,vymazPodujatie,upravPodujatie,ZoradRegion,createTables}
