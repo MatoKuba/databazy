@@ -38,11 +38,18 @@ router.get("/vytvor", authorize('admin'), function (req, res) {
 
 });
 
+router.get("/vytvorpodujatie", authorize('admin'), function (req, res) {
+    res.render('index/vytvorpodujatie.twig');
+
+});
+
 router.post("/pridaj_podujatie", authorize('admin'), async function (req, res) {
     console.log(req.body.nazov, req.body.miesto, req.body.datum, req.body.opis, req.body.typ, req.body.kraj);
     await Create.vlozPodujatie(req.body.nazov, req.body.miesto, req.body.datum, req.body.opis, req.body.typ, req.body.kraj) //nazov,miesto,datum,opis,typ,kraj
     res.redirect("/podujatia");
 });
+
+
 
 
 

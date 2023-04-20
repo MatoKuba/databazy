@@ -1,5 +1,4 @@
 {% extends '../base.twig' %}
-{% import "index/script.js" as function %}
 {% block content %}
 
     <style>
@@ -12,7 +11,7 @@
         }
     </style>
     <h2 class="text-center">Vytvor tabuľku</h2>
-    <form method="POST" action="script.js" class="text-center" onsubmit="event.preventDefault();">
+    <form method="POST" class="text-center" onsubmit="event.preventDefault();">
         <br><br>
         <label for="row">Row:</label>
         <input type="number" id="row" name="row" class="form-input" placeholder="0" min="0">
@@ -22,7 +21,6 @@
         <input type="text" id="name" name="name" class="form-input" placeholder="nazov tabulky" required>
 
     </form>
-
     <script>
         function setInputValidation(id) {
             const input = document.getElementById(id);
@@ -74,6 +72,7 @@
 
     <p id="vystup" class="text-center"></p>
 
+    <a class="badge bg-success d-block" href="/vytvor/create"><i class="fa-solid fa-edit"></i></a>
 
     <script>
 
@@ -208,9 +207,7 @@
                 }
 
             }
-            console.log(value);
-            console.log(values);
-            {{  }}
+            //return [name, values];
 
         }
 
