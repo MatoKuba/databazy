@@ -10,6 +10,9 @@
         input[type="text"]:focus {
             outline: 1px solid #007BFF;
         }
+        .highlight {
+            background-color: #76f57a;
+        }
     </style>
     <h2 class="text-center">Vytvor tabuľku</h2>
     <form method="POST" action="script.js" class="text-center" onsubmit="event.preventDefault();">
@@ -70,6 +73,7 @@
         <button type="button" id="btnDrop">Drop</button>
         <button type="button" id="btnCreate">Create</button>
         <button type="button" id="btnInsert">addRow</button>
+        <button type="button" id="deleteBtn">Delete</button>
     </div>
 
     <p id="vystup" class="text-center"></p>
@@ -85,15 +89,22 @@
             // ak nie sú vybraté žiadne riadky alebo stĺpce, pridaj nový riadok na koniec tabuľky
 
             var newRow = table.insertRow(table.rows.length);
+
             for (var i = 0; i < table.rows[0].cells.length; i++) {
                 var newCell = newRow.insertCell(i);
                 newCell.innerHTML = "<input type='text' name='data[" + table.rows.length + "][" + (i + 1) + "]' value='' style='border: 0; outline: 0; width: 100%; height: 100%;'>";
                 newCell.style.border = "1px solid black";
                 newCell.style.padding = "5px";
+
+                // Add checkbox to first cell of new row
+                if (i === 0) {
+                    var checkbox = document.createElement("input");
+                    checkbox.type = "checkbox";
+                    checkbox.name = "checkbox";
+                    newCell.appendChild(checkbox);
+                }
             }
             vstup.innerHTML = "INSERT INTO TABLE DEFAULT VALUES;";
-
-
         }
 
         function onCellValueChanged(row, col, value) {
@@ -166,9 +177,18 @@
 
             for (var i = 0; i < selectedRow; i++) {
                 var row = table.insertRow(table.rows.length);
+                var isFirstRow = (i === 0);
                 for (var j = 0; j < selectedCol; j++) {
                     var cell = row.insertCell(j);
                     var value = '';
+
+                    if (isFirstRow || j === 0) {
+                        var checkbox = document.createElement('input');
+                        checkbox.type = 'checkbox';
+                        checkbox.name = 'check[' + (i + 1) + '][' + (j + 1) + ']';
+                        checkbox.style.margin = 'auto';
+                        cell.appendChild(checkbox);
+                    }
 
                     if (headers.length > 0 && i === 0) {
                         value = headers[j];
@@ -208,10 +228,37 @@
                 }
 
             }
+
             console.log(value);
             console.log(values);
             {{  }}
+            checkboxFunctionality();
+        }
+        function checkboxFunctionality() {
+            const table = document.getElementById("myTable");
 
+            // Add event listener to each checkbox
+            const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+            checkboxes.forEach(function (checkbox) {
+                checkbox.addEventListener("click", function () {
+                    const currentRow = checkbox.parentElement.parentElement.rowIndex;
+                    const currentCol = checkbox.parentElement.cellIndex;
+
+                    // Check if checkbox is in first row
+                    if (currentRow === 0) {
+                        // Highlight column
+                        for (let i = 0; i < table.rows.length; i++) {
+                            table.rows[i].cells[currentCol].classList.toggle("highlight");
+                        }
+                    } else {
+                        // Highlight row
+                        const row = table.rows[currentRow];
+                        for (let i = 0; i < row.cells.length; i++) {
+                            row.cells[i].classList.toggle("highlight");
+                        }
+                    }
+                });
+            });
         }
 
         function dropTable() {
@@ -219,6 +266,39 @@
             table.innerHTML = "";
             var vystup = document.getElementById("vystup");
             vystup.innerHTML = "DROP TABLE TABLE;"
+        }
+
+        function deleteSelection() {
+            const table = document.getElementById("myTable");
+
+            // Get all checkboxes
+            const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+
+            // Check if any checkboxes are checked
+            let checked = false;
+            checkboxes.forEach(function (checkbox) {
+                if (checkbox.checked) {
+                    checked = true;
+                    const currentRow = checkbox.parentElement.parentElement.rowIndex;
+                    const currentCol = checkbox.parentElement.cellIndex;
+
+                    // Delete row or column
+                    if (currentRow === 0) {
+                        // Delete column
+                        for (let i = 0; i < table.rows.length; i++) {
+                            table.rows[i].deleteCell(currentCol);
+                        }
+                    } else {
+                        // Delete row
+                        table.deleteRow(currentRow);
+                    }
+                }
+            });
+
+            // If no checkboxes are checked, display an alert
+            if (!checked) {
+                alert("Najprv vyberte riadok alebo stĺpec, ktorý chcete odstrániť.");
+            }
         }
 
         // pridanie event listenerov pre tlačidlá
@@ -233,6 +313,8 @@
         document.getElementById("btnCreate").addEventListener("click", function() {
             createTable();
         });
+        const deleteBtn = document.getElementById("deleteBtn");
+        deleteBtn.addEventListener("click", deleteSelection);
         // Listener for Enter key
         const formInputs = document.querySelectorAll('.form-input');
 
