@@ -7,11 +7,11 @@ import * as Table from "../service/Tables.js";
 const router = express.Router();
 
 
-router.get("/create",  async function (req, res) {
+router.get("/droptab",  async function (req, res) {
     // pockat na dokoncenie funkcie pre pridanie prispevku
-    console.log(req.body.name,req.body.values);
-    await Table.createTables(req.body.name,req.body.values);
-    await req.flash('success', 'Tabuľka bola vytvorená.')
+    console.log("tusom");
+    await Table.dropTables();
+    await req.flash('success', 'Tabuľka bola vymazaná.')
 
     // presmerovat na zobrazenie vsetkych prispevkov
     res.redirect('/vytvor');

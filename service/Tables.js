@@ -5,11 +5,14 @@ import * as Db from "./MariaClient.js";
  * @returns {Promise<*>}
  */
 
-async function createTables(meno,obsah) {
-    return Db.query('CREATE TABLE meno (obsah)',
-        {meno :meno, obsah: obsah});
+async function createTables() {
+    return Db.query('CREATE TABLE tabulka(column1 VARCHAR(20),column2 VARCHAR(20),column3 VARCHAR(20),column4 VARCHAR(20),column5 VARCHAR(20))');
+}
+
+async function dropTables() {
+    return Db.query('DROP TABLE tabulka');
 }
 
 
 
-export {createTables}
+export {createTables,dropTables}

@@ -64,15 +64,20 @@
         {% endfor %}
     </table>
 
+    <form method="post" action="../vytvortab">
+        <input type="submit" value="create" onclick="createTable()">
+    </form>
+    <form method="get" action="vytvortabulku/droptab">
+        <input type="submit" value="drop" onclick="dropTable()">
+    </form>
     <div class="text-center mt-3">
+
         <button type="button" id="btnDrop">Drop</button>
-        <button type="button" id="btnCreate">Create</button>
         <button type="button" id="btnInsert">addRow</button>
     </div>
 
     <p id="vystup" class="text-center"></p>
 
-    <a class="badge bg-success d-block" href="/vytvor/create"><i class="fa-solid fa-edit"></i></a>
 
     <script>
 

@@ -1,6 +1,7 @@
 import express from 'express';
 import {authorize} from '../service/Security.js'
 import * as Create from "../service/Create.js";
+import * as Table from "../service/Tables.js";
 const router = express.Router();
 
 /**
@@ -49,7 +50,15 @@ router.post("/pridaj_podujatie", authorize('admin'), async function (req, res) {
     res.redirect("/podujatia");
 });
 
+router.post("/vytvortab",  async function (req, res) {
+    // pockat na dokoncenie funkcie pre pridanie prispevku
+    console.log("som");
+    await Table.createTables();
+    await req.flash('success', 'Tabuľka bola vytvorená.')
 
+    // presmerovat na zobrazenie vsetkych prispevkov
+    res.redirect('/vytvor');
+});
 
 
 
