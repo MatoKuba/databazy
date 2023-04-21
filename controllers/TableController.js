@@ -17,5 +17,15 @@ router.get("/droptab",  async function (req, res) {
     res.redirect('/vytvor');
 });
 
+router.post("/update",  async function (req, res) {
+    // pockat na dokoncenie funkcie pre pridanie prispevku
+    console.log(req.body.update);
+    await Table.updateTables(req.body.update);
+    await req.flash('success', 'Tabuľka bola upravená.')
+
+    // presmerovat na zobrazenie vsetkych prispevkov
+    res.redirect('/vytvor');
+});
+
 
 export {router as TableController}

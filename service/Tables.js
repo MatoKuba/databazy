@@ -13,6 +13,10 @@ async function dropTables() {
     return Db.query('DROP TABLE tabulka');
 }
 
+async function updateTables(update) {
+    return Db.query(update);
+}
 
 
-export {createTables,dropTables}
+
+export {createTables,dropTables,updateTables}

@@ -66,21 +66,26 @@
 
     <form method="post" action="../vytvortab">
         <input type="submit" value="create" onclick="createTable()">
+        <input type="hidden" id="input-value" name="value" value="hodnota">
+        <input type="hidden" id="input-name" name="name" value="hodnota">
     </form>
     <form method="get" action="vytvortabulku/droptab">
         <input type="submit" value="drop" onclick="dropTable()">
     </form>
+
     <div class="text-center mt-3">
 
         <button type="button" id="btnDrop">Drop</button>
         <button type="button" id="btnInsert">addRow</button>
+        <button type="button" id="btnCreate">addRow</button>
     </div>
 
     <p id="vystup" class="text-center"></p>
 
 
     <script>
-
+        //cakanie na premenne neni spravene
+        // odoslat tlacidlo ?..
 
         function addRow() {
             var table = document.getElementById("myTable");
@@ -100,16 +105,32 @@
 
         }
 
+        function sendUpdateToServer(update) { //spracovanie
+            fetch('vytvortabulku/update', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ update: update })
+            })
+                .then(response => {
+                    // handle the server response
+                })
+                .catch(error => {
+                    // handle the error
+                });
+        }
+
         function onCellValueChanged(row, col, value) {
+            var update = "";
             if (row === 0) {
                 const oldValue = document.querySelector(`input[name="data[0][${col}]"]`).value;
                 console.log(`ALTER TABLE TABLE RENAME COLUMN ${oldValue} TO ${value};`);
             } else {
                 console.log(`UPDATE TABLE SET column${col} = '${value}' WHERE row = ${row};`);
+                update = `UPDATE tabulka SET column${col} = '${value}' WHERE row = ${row};`; //tabulka xd
+                sendUpdateToServer(update);
             }
-
-            const columnType = getColumnType(col);
-            console.log(`ALTER TABLE TABLE MODIFY COLUMN column${col} ${columnType};`);
         }
 
         function getColumnType(col) {
@@ -213,6 +234,10 @@
 
             }
             //return [name, values];
+            var inputvalue = document.getElementById("input-value").value;
+            inputvalue.value = values;
+            var inputname = document.getElementById("input-name").value;
+            inputname.value = name;
 
         }
 

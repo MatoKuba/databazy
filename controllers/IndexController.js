@@ -53,6 +53,7 @@ router.post("/pridaj_podujatie", authorize('admin'), async function (req, res) {
 router.post("/vytvortab",  async function (req, res) {
     // pockat na dokoncenie funkcie pre pridanie prispevku
     console.log("som");
+    console.log(req.body.name,req.body.values);
     await Table.createTables();
     await req.flash('success', 'Tabuľka bola vytvorená.')
 
