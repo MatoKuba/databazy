@@ -64,20 +64,18 @@
         {% endfor %}
     </table>
 
-    <form method="post" action="../vytvortab">
+    {# <form method="post" action="../vytvortab">
         <input type="submit" value="create" onclick="createTable()">
-        <input type="hidden" id="input-value" name="value" value="hodnota">
-        <input type="hidden" id="input-name" name="name" value="hodnota">
-    </form>
-    <form method="get" action="vytvortabulku/droptab">
+    </form> #}
+    {#<form method="get" action="vytvortabulku/droptab">
         <input type="submit" value="drop" onclick="dropTable()">
-    </form>
+    </form>  #}
 
     <div class="text-center mt-3">
 
         <button type="button" id="btnDrop">Drop</button>
         <button type="button" id="btnInsert">addRow</button>
-        <button type="button" id="btnCreate">addRow</button>
+        <button type="button" id="btnCreate">Create</button>
     </div>
 
     <p id="vystup" class="text-center"></p>
@@ -112,6 +110,38 @@
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({ update: update })
+            })
+                .then(response => {
+                    // handle the server response
+                })
+                .catch(error => {
+                    // handle the error
+                });
+        }
+
+        function sendDropToServer(remove) { //spracovanie
+            fetch('vytvortabulku/droptab', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ remove: remove})
+            })
+                .then(response => {
+                    // handle the server response
+                })
+                .catch(error => {
+                    // handle the error
+                });
+        }
+
+        function sendCreatetoServer(values) { //spracovanie
+            fetch('../vytvortab', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ values: values })
             })
                 .then(response => {
                     // handle the server response
@@ -175,7 +205,6 @@
             var vystup = document.getElementById("vystup");
             vystup.innerHTML = "CREATE TABLE " + name;
             console.log("CREATE TABLE " + name + ";")
-
             let values = "";
 
 
@@ -199,7 +228,7 @@
                         value = headers[j];
                     } else if (i === 0) {
                         value = 'column' + (j + 1);
-                        values += value + " VARCHAR(50),";
+                        values += value + " VARCHAR(50)" + ",";
                     }
                     var input = document.createElement('input');
                     input.type = 'text';
@@ -234,18 +263,21 @@
 
             }
             //return [name, values];
-            var inputvalue = document.getElementById("input-value").value;
-            inputvalue.value = values;
-            var inputname = document.getElementById("input-name").value;
-            inputname.value = name;
+            values = values.slice(0, -1);
+            let output = `CREATE TABLE ${name}(${values});`;
+            console.log(output);
+            sendCreatetoServer(output);
 
         }
 
         function dropTable() {
             var table = document.getElementById("myTable");
+            var name = document.getElementById("name").value;
             table.innerHTML = "";
             var vystup = document.getElementById("vystup");
             vystup.innerHTML = "DROP TABLE TABLE;"
+            var remove = `DROP TABLE ${name};`;
+            sendDropToServer(remove);
         }
 
         // pridanie event listenerov pre tlačidlá
