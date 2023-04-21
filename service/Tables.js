@@ -5,12 +5,12 @@ import * as Db from "./MariaClient.js";
  * @returns {Promise<*>}
  */
 
-async function createTables() {
-    return Db.query('CREATE TABLE tabulka(column1 VARCHAR(20),column2 VARCHAR(20),column3 VARCHAR(20),column4 VARCHAR(20),column5 VARCHAR(20))');
+async function createTables(values) {
+    return Db.query(values);
 }
 
-async function dropTables() {
-    return Db.query('DROP TABLE tabulka');
+async function dropTables(drop) {
+    return Db.query(drop);
 }
 
 async function updateTables(update) {

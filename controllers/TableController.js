@@ -7,10 +7,10 @@ import * as Table from "../service/Tables.js";
 const router = express.Router();
 
 
-router.get("/droptab",  async function (req, res) {
+router.post("/droptab",  async function (req, res) {
     // pockat na dokoncenie funkcie pre pridanie prispevku
     console.log("tusom");
-    await Table.dropTables();
+    await Table.dropTables(req.body.remove);
     await req.flash('success', 'Tabuľka bola vymazaná.')
 
     // presmerovat na zobrazenie vsetkych prispevkov
