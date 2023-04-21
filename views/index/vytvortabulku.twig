@@ -123,12 +123,18 @@
 
         function onCellValueChanged(row, col, value) {
             var update = "";
+            const idCellValue = document.querySelector(`input[name="data[${row + 1}][1]"]`).value;
+
             if (row === 0) {
-                const oldValue = document.querySelector(`input[name="data[0][${col}]"]`).value;
-                console.log(`ALTER TABLE TABLE RENAME COLUMN ${oldValue} TO ${value};`);
+                const oldValue = document.querySelector(`input[name="data[1][${col + 1}]"]`).value;
+                const columnType = "VARCHAR(50)"; // Change this to the appropriate column type if necessary
+                console.log(`ALTER TABLE tabulka CHANGE ${oldValue} ${value} ${columnType};`);
+                update = `ALTER TABLE tabulka CHANGE ${oldValue} ${value} ${columnType};`;
+                sendUpdateToServer(update);
             } else {
-                console.log(`UPDATE TABLE SET column${col} = '${value}' WHERE row = ${row};`);
-                update = `UPDATE tabulka SET column${col} = '${value}' WHERE row = ${row};`; //tabulka xd
+                const columnName = document.querySelector(`input[name="data[1][${col + 1}]"]`).value;
+                console.log(`UPDATE tabulka SET ${columnName} = '${value}' WHERE ID = ${idCellValue};`);
+                update = `UPDATE tabulka SET ${columnName} = '${value}' WHERE ID = ${idCellValue};`;
                 sendUpdateToServer(update);
             }
         }
@@ -169,16 +175,14 @@
                 return;
             }
             var table = document.getElementById("myTable");
-            var selectedRow = document.getElementById("row").value;
-            var selectedCol = document.getElementById("column").value;
+            var selectedRow = parseInt(document.getElementById("row").value) + 1;
+            var selectedCol = parseInt(document.getElementById("column").value) + 1;
             var headers = document.getElementById("value")?.value.split(";") || [];
             var vystup = document.getElementById("vystup");
             vystup.innerHTML = "CREATE TABLE " + name;
             console.log("CREATE TABLE " + name + ";")
 
-            let values = "";
-
-
+            let values = "ID INT PRIMARY KEY,";
 
             if (headers.length > 0) {
                 vystup.innerHTML += "(" + headers.join(",") + ")" + ";";
@@ -189,18 +193,33 @@
                 table.deleteRow(0);
             }
 
+            let insertQueries = '';
+
+            for (var i = 0; i < selectedRow - 1; i++) { // -1 because the first row is the header
+                insertQueries += `INSERT INTO ${name} (${headers.join(",")}) VALUES (${headers.map(() => 'NULL').join(",")});\n`;
+            }
+
+            console.log(insertQueries);
+
             for (var i = 0; i < selectedRow; i++) {
                 var row = table.insertRow(table.rows.length);
-                for (var j = 0; j < selectedCol; j++) {
+                for (var j = 0; j < selectedCol + 1; j++) { // Add 1 to the number of columns to include the ID column
                     var cell = row.insertCell(j);
                     var value = '';
 
-                    if (headers.length > 0 && i === 0) {
-                        value = headers[j];
+                    if (j === 0) { // If it's the ID column
+                        if (i === 0) {
+                            value = 'ID';
+                        } else {
+                            value = i;
+                        }
+                    } else if (headers.length > 0 && i === 0) {
+                        value = headers[j - 1]; // Use j - 1 as the index since there's an extra ID column now
                     } else if (i === 0) {
-                        value = 'column' + (j + 1);
+                        value = 'column' + j;
                         values += value + " VARCHAR(50),";
                     }
+
                     var input = document.createElement('input');
                     input.type = 'text';
                     input.name = 'data[' + (i + 1) + '][' + (j + 1) + ']';
@@ -212,6 +231,10 @@
 
                     if (i === 0) {
                         input.setAttribute('data-oldColumnName', value);
+                    }
+
+                    if (j === 0) { // If it's the ID column
+                        input.readOnly = true;
                     }
 
                     // Add event listener for 'keypress' event to prevent input deletion
