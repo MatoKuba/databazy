@@ -153,18 +153,21 @@
 
         function onCellValueChanged(row, col, value) {
             var update = "";
-            const idCellValue = document.querySelector(`input[name="data[${row + 1}][1]"]`).value;
+            var name = document.getElementById("name").value;
+            const idCellValue = document.querySelector(`input[name="data[${row}][1]"]`).value;
 
-            if (row === 0) {
-                const oldValue = document.querySelector(`input[name="data[1][${col + 1}]"]`).value;
-                const columnType = "VARCHAR(50)"; // Change this to the appropriate column type if necessary
-                console.log(`ALTER TABLE tabulka CHANGE ${oldValue} ${value} ${columnType};`);
-                update = `ALTER TABLE tabulka CHANGE ${oldValue} ${value} ${columnType};`;
+            if (row === 1) {
+                const oldValue = document.querySelector(`input[name="data[1][${col}]"]`).getAttribute('data-oldColumnName');
+                const columnType = getColumnType(col); // Get column type based on the values in the column
+                // Add the column definition and optional position change if necessary
+                console.log('ALTER TABLE ' + name + ' CHANGE COLUMN ${oldValue} ${value} ${columnType};');
+                update = `ALTER TABLE ${name} CHANGE COLUMN ${oldValue} ${value} ${columnType};`;
                 sendUpdateToServer(update);
+                document.querySelector(`input[name="data[1][${col}]"]`).setAttribute('data-oldColumnName', value);
             } else {
-                const columnName = document.querySelector(`input[name="data[1][${col + 1}]"]`).value;
-                console.log(`UPDATE tabulka SET ${columnName} = '${value}' WHERE ID = ${idCellValue};`);
-                update = `UPDATE tabulka SET ${columnName} = '${value}' WHERE ID = ${idCellValue};`;
+                const columnName = document.querySelector(`input[name="data[1][${col}]"]`).value;
+                console.log(`UPDATE ' + name + ' SET ${columnName} = '${value}' WHERE ID = ${idCellValue};`);
+                update = `UPDATE ${name} SET ${columnName} = '${value}' WHERE ID = ${idCellValue};`;
                 sendUpdateToServer(update);
             }
         }
@@ -194,7 +197,7 @@
             } else if (allFloat) {
                 return "FLOAT";
             } else {
-                return "VARCHAR";
+                return "VARCHAR(50)";
             }
         }
         //<input type="text" id="vstup" name="vstup" class="form-input" placeholder="nazov tabulky" required>
@@ -212,7 +215,7 @@
             vystup.innerHTML = "CREATE TABLE " + name;
             console.log("CREATE TABLE " + name + ";")
 
-            let values = "ID INT PRIMARY KEY,";
+            let values = "ID INT PRIMARY KEY AUTO_INCREMENT,"; // Add AUTO_INCREMENT attribute
 
             if (headers.length > 0) {
                 vystup.innerHTML += "(" + headers.join(",") + ")" + ";";
@@ -223,30 +226,22 @@
                 table.deleteRow(0);
             }
 
-            let insertQueries = '';
-
-            for (var i = 0; i < selectedRow - 1; i++) { // -1 because the first row is the header
-                insertQueries += `INSERT INTO ${name} (${headers.join(",")}) VALUES (${headers.map(() => 'NULL').join(",")});\n`;
-            }
-
-            console.log(insertQueries);
-
             for (var i = 0; i < selectedRow; i++) {
                 var row = table.insertRow(table.rows.length);
-                for (var j = 0; j < selectedCol + 1; j++) { // Add 1 to the number of columns to include the ID column
+                for (var j = 0; j < selectedCol; j++) {
                     var cell = row.insertCell(j);
                     var value = '';
 
-                    if (j === 0) { // If it's the ID column
+                    if (j === 0) {
                         if (i === 0) {
                             value = 'ID';
                         } else {
-                            value = i;
+                            value = i; // Assign default values to the ID column on the website
                         }
                     } else if (headers.length > 0 && i === 0) {
-                        value = headers[j - 1]; // Use j - 1 as the index since there's an extra ID column now
+                        value = headers[j - 1];
                     } else if (i === 0) {
-                        value = 'column' + (j + 1);
+                        value = 'column' + j;
                         values += value + " VARCHAR(50)" + ",";
                     }
                     var input = document.createElement('input');
@@ -289,7 +284,17 @@
             values = values.slice(0, -1);
             let output = `CREATE TABLE ${name}(${values});`;
             console.log(output);
+
             sendCreatetoServer(output);
+
+            setTimeout(() => {
+                let insertQueries = `INSERT INTO ${name} (${headers.join(",")}) VALUES (${headers.map(() => 'NULL').join(",")});`;
+
+                for (var i = 0; i < selectedRow - 1; i++) { // -1 because the first row is the header
+                    console.log(insertQueries);
+                    sendUpdateToServer(insertQueries);
+                }
+            }, 500); // Delay for 0.5 seconds (500 milliseconds)
 
         }
 
