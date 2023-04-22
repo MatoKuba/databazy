@@ -82,6 +82,12 @@
         //cakanie na premenne neni spravene
         // odoslat tlacidlo ?..
 
+        // Global variable to keep track of the next ID
+        let nextRowId;
+
+        function initializeNextRowId() {
+            nextRowId = parseInt(document.getElementById("row").value) +1;
+        }
 
         function addRow() {
             var table = document.getElementById("myTable");
@@ -95,7 +101,8 @@
 
                 if (i === 0) {
                     // Set the correct value for the ID column
-                    newCell.innerText = table.rows.length - 1;
+                    newCell.innerHTML = "<input type='text' name='data[" + (table.rows.length - 1) + "][" + (i + 1) + "]' value='" + nextRowId + "' style='border: 0; outline: 0; width: 100%; height: 100%;' readonly>";
+                    nextRowId++; // Increment the next ID
                 } else {
                     newCell.innerHTML = "<input type='text' name='data[" + (table.rows.length - 1) + "][" + (i + 1) + "]' value='' style='border: 0; outline: 0; width: 100%; height: 100%;'>";
 
@@ -123,6 +130,14 @@
                     checkbox.type = "checkbox";
                     checkbox.name = "checkbox";
                     newCell.appendChild(checkbox);
+
+                    checkbox.addEventListener("click", function () {
+                        const currentRow = newRow.rowIndex;
+                        const row = table.rows[currentRow];
+                        for (let i = 0; i < row.cells.length; i++) {
+                            row.cells[i].classList.toggle("highlight");
+                        }
+                    });
                 }
             }
 
@@ -259,7 +274,6 @@
                 });
         }
 
-
         function onCellValueChanged(row, col, value) {
             if (col === 1) {
                 return; // Do not process the ID column
@@ -269,7 +283,7 @@
             var inputElement = document.querySelector(`input[name="data[${row}][${col}]"]`);
             var oldValue = inputElement ? inputElement.getAttribute('data-oldvalue') : null;
             var columnName = document.querySelector(`input[name="data[1][${col}]"]`).value;
-            var vstup = document.getElementById("vystup").value;
+            var vstup = document.getElementById("vystup");
 
             if (row === 1) {
                 var oldColumnName = document.querySelector(`input[name="data[${row}][${col}]"]`).getAttribute('data-oldColumnName');
@@ -323,7 +337,7 @@
                 return "VARCHAR(50)";
             }
         }
-        //<input type="text" id="vstup" name="vstup" class="form-input" placeholder="nazov tabulky" required>
+
         function createTable() {
             var name = document.getElementById("name").value;
             if (!name) {
@@ -421,8 +435,11 @@
 
             }
             //return [name, values];
+            initializeNextRowId();
             values = values.slice(0, -1);
+
             let output = `CREATE TABLE ${name}(${values});`;
+            output = output.replace(/,/g, ',\n    '); // add newline and indentation
             console.log(output);
 
             vystup.innerHTML = output;
