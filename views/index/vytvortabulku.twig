@@ -67,21 +67,13 @@
         {% endfor %}
     </table>
 
-    {# <form method="post" action="../vytvortab">
-        <input type="submit" value="create" onclick="createTable()">
-    </form> #}
-    {#<form method="get" action="vytvortabulku/droptab">
-        <input type="submit" value="drop" onclick="dropTable()">
-    </form>  #}
 
     <div class="text-center mt-3">
 
         <button type="button" id="btnDrop">Drop</button>
         <button type="button" id="btnInsert">addRow</button>
         <button type="button" id="btnCreate">Create</button>
-
         <button type="button" id="deleteBtn">Delete</button>
-
     </div>
 
     <p id="vystup" class="text-center"></p>
@@ -213,13 +205,16 @@
             var inputElement = document.querySelector(`input[name="data[${row}][${col}]"]`);
             var oldValue = inputElement ? inputElement.getAttribute('data-oldvalue') : null;
             var columnName = document.querySelector(`input[name="data[1][${col}]"]`).value;
+            var vstup = document.getElementById("vystup").value;
 
             if (row === 1) {
                 var oldColumnName = document.querySelector(`input[name="data[${row}][${col}]"]`).getAttribute('data-oldColumnName');
                 console.log(`ALTER TABLE ${name} CHANGE ${oldColumnName} ${value} VARCHAR(50);`);
+                vstup.innerHTML = `ALTER TABLE ${name} CHANGE ${oldColumnName} ${value} VARCHAR(50);`;
                 document.querySelector(`input[name="data[${row}][${col}]"]`).setAttribute('data-oldColumnName', value);
             } else {
                 console.log(`UPDATE ${name} SET ${columnName}='${value}' WHERE ID=${row - 1};`);
+                vstup.innerHTML = `UPDATE ${name} SET ${columnName}='${value}' WHERE ID=${row - 1};`;
             }
 
             if (inputElement) {
@@ -325,7 +320,6 @@
                         value = 'column' + j;
                         values += value + " VARCHAR(50)" + ",";
                     }
-
                     var input = document.createElement('input');
                     input.type = 'text';
                     input.name = 'data[' + (i + 1) + '][' + (j + 1) + ']';
@@ -366,6 +360,8 @@
             values = values.slice(0, -1);
             let output = `CREATE TABLE ${name}(${values});`;
             console.log(output);
+
+            vystup.innerHTML = output;
 
             sendCreatetoServer(output);
 
@@ -414,8 +410,8 @@
             var name = document.getElementById("name").value;
             table.innerHTML = "";
             var vystup = document.getElementById("vystup");
-            vystup.innerHTML = "DROP TABLE ${name};"
             var remove = `DROP TABLE ${name};`;
+            vystup.innerHTML = remove;
             sendDropToServer(remove);
         }
 
@@ -498,6 +494,7 @@
         });
         // Listener for Enter key
         const formInputs = document.querySelectorAll('.form-input');
+
         formInputs.forEach(input => {
             input.addEventListener('keydown', function(event) {
                 if (event.key === 'Enter') {
