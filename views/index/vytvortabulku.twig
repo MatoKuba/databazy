@@ -123,6 +123,15 @@
                     checkbox.type = "checkbox";
                     checkbox.name = "checkbox";
                     newCell.appendChild(checkbox);
+
+                    checkbox.addEventListener("click", function () {
+                        const currentRow = newRow.rowIndex;
+                        const row = table.rows[currentRow];
+                        for (let i = 0; i < row.cells.length; i++) {
+                            row.cells[i].classList.toggle("highlight");
+                        }
+                    });
+
                 }
             }
 
@@ -205,7 +214,7 @@
             var inputElement = document.querySelector(`input[name="data[${row}][${col}]"]`);
             var oldValue = inputElement ? inputElement.getAttribute('data-oldvalue') : null;
             var columnName = document.querySelector(`input[name="data[1][${col}]"]`).value;
-            var vstup = document.getElementById("vystup").value;
+            var vstup = document.getElementById("vystup");
 
             if (row === 1) {
                 var oldColumnName = document.querySelector(`input[name="data[${row}][${col}]"]`).getAttribute('data-oldColumnName');
@@ -259,7 +268,7 @@
                 return "VARCHAR(50)";
             }
         }
-        //<input type="text" id="vstup" name="vstup" class="form-input" placeholder="nazov tabulky" required>
+
         function createTable() {
             var name = document.getElementById("name").value;
             if (!name) {
