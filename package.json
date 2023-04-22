@@ -2,7 +2,7 @@
   "name": "komentare",
   "version": "1.0.0",
   "description": "",
-  "main": "server.js",
+  "main": "../databazy/server.js",
   "type": "module",
   "dependencies": {
     "accepts": "^1.3.8",
@@ -140,7 +140,7 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
+    "start": "node ../databazy/server.js"
   },
   "author": "",
   "license": "ISC"
