@@ -11,6 +11,24 @@
         .highlight {
             background-color: #76f57a;
         }
+        button {
+            display: inline-block;
+            padding: 12px 24px;
+            border-radius: 30px;
+            background-color: red;
+            color: yellow;
+            text-align: center;
+            font-size: 18px;
+            text-decoration: none;
+            box-shadow: darkred;
+            transition: all 0.2s ease-in-out;
+        }
+
+        button:hover {
+            background-color: red;
+            box-shadow: 0px 3px 0px darkred;
+            transform: translateY(-2px);
+        }
     </style>
     <h2 class="text-center">Vytvor tabuľku</h2>
     <form method="POST" class="text-center" onsubmit="event.preventDefault();">
@@ -70,7 +88,7 @@
     <div class="text-center mt-3">
 
         <button type="button" id="btnDrop">Drop</button>
-        <button type="button" id="btnInsert">addRow</button>
+        <button type="button" id="btnInsert">Add row</button>
         <button type="button" id="btnCreate">Create</button>
         <button type="button" id="deleteBtn">Delete</button>
         <button type="button" id="btnAddCol">Add Column</button>
