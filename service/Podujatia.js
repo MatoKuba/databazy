@@ -9,7 +9,7 @@ async function findAllPodujatia() {
 }
 
 async function createTables(meno,obsah) {
-    return Db.query('CREATE TABLE meno(meno,obsah)');
+    return Db.query('CREATE TABLE meno(obsah)');
 }
 
 async function findPodujatie(id) {
