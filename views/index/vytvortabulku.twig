@@ -73,6 +73,8 @@
         <button type="button" id="btnInsert">addRow</button>
         <button type="button" id="btnCreate">Create</button>
         <button type="button" id="deleteBtn">Delete</button>
+        <button type="button" id="btnAddCol">Add Column</button>
+
     </div>
 
     <p id="vystup" class="text-center"></p>
@@ -161,6 +163,68 @@
             console.log(insertQueries);
 
             sendUpdateToServer(insertQueries);
+        }
+
+        function addColumn() {
+            var table = document.getElementById("myTable");
+            var selectedRow = table.rows.length;
+            var selectedCol = table.rows[0].cells.length;
+            var tableName = document.getElementById("name").value;
+
+            for (var i = 0; i < selectedRow; i++) {
+                var cell = table.rows[i].insertCell(selectedCol);
+                var value = '';
+                var input = document.createElement('input');
+                input.type = 'text';
+
+                if (i === 0) {
+                    value = 'column' + selectedCol;
+                    input.setAttribute('data-oldColumnName', value);
+                }
+
+                input.name = 'data[' + (i + 1) + '][' + (selectedCol + 1) + ']';
+                input.value = value;
+                input.style.border = '0';
+                input.style.outline = '0';
+                input.style.width = '100%';
+                input.style.height = '100%';
+
+                // Add event listener for 'keypress' event to prevent input deletion
+                input.addEventListener('keypress', function (e) {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                    }
+                });
+
+                input.onblur = (function(currentRow, currentCol) {
+                    return function() {
+                        onCellValueChanged(currentRow + 1, currentCol + 1, this.value);
+                    };
+                })(i, selectedCol);
+
+                // Add a checkbox to the header row
+                if (i === 0) {
+                    var checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.name = 'check[' + (i + 1) + '][' + (selectedCol + 1) + ']';
+                    checkbox.style.margin = 'auto';
+                    cell.appendChild(checkbox);
+                }
+
+                cell.appendChild(input);
+                cell.style.border = '1px solid black';
+                cell.style.padding = '5px';
+            }
+
+            // Generate the SQL query
+            let columnName = 'column' + selectedCol;
+            let alterTableQuery = `ALTER TABLE ${tableName} ADD COLUMN ${columnName} VARCHAR(50);`;
+            console.log(alterTableQuery);
+
+            // Send the SQL query to the server
+            sendUpdateToServer(alterTableQuery);
+
+            checkboxFunctionality();
         }
 
         function sendUpdateToServer(update) { //spracovanie
@@ -565,6 +629,10 @@
 
         document.getElementById("btnDrop").addEventListener("click", function() {
             dropTable();
+        });
+
+        document.getElementById('btnAddCol').addEventListener('click', function() {
+            addColumn();
         });
 
         document.getElementById("btnCreate").addEventListener("click", function() {
