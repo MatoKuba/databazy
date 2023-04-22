@@ -9,7 +9,6 @@ import {IndexController} from "./controllers/IndexController.js";
 import {UserController} from "./controllers/UserController.js";
 import {PostController} from "./controllers/PostController.js";
 import {PodujatiaController} from "./controllers/PodujatiaController.js";
-import {TableController} from "./controllers/TableController.js";
 
 // doplnit ENV parametre zo suboru .env
 dotenv.config();
@@ -64,7 +63,6 @@ app.use("/", IndexController);
 app.use("/user", UserController);
 app.use("/post", PostController);
 app.use("/podujatia", PodujatiaController);
-app.use("/vytvortabulku", TableController);
 
 // spustenie servera
 let server = app.listen(3000, () => console.log(`Server počúva na adrese http://localhost:${server.address().port}`));
