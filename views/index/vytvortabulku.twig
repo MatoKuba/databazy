@@ -88,19 +88,58 @@
         function addRow() {
             var table = document.getElementById("myTable");
             var vstup = document.getElementById("vystup");
+            var name = document.getElementById("name").value;
 
-            // ak nie sú vybraté žiadne riadky alebo stĺpce, pridaj nový riadok na koniec tabuľky
-
+            // Insert a new row at the end of the table
             var newRow = table.insertRow(table.rows.length);
             for (var i = 0; i < table.rows[0].cells.length; i++) {
                 var newCell = newRow.insertCell(i);
-                newCell.innerHTML = "<input type='text' name='data[" + table.rows.length + "][" + (i + 1) + "]' value='' style='border: 0; outline: 0; width: 100%; height: 100%;'>";
+
+                if (i === 0) {
+                    // Set the correct value for the ID column
+                    newCell.innerText = table.rows.length - 1;
+                } else {
+                    newCell.innerHTML = "<input type='text' name='data[" + (table.rows.length - 1) + "][" + (i + 1) + "]' value='' style='border: 0; outline: 0; width: 100%; height: 100%;'>";
+
+                    // Get the input element and add event listeners
+                    const input = newCell.querySelector('input');
+                    input.addEventListener('keypress', function (e) {
+                        if (e.key === 'Enter') {
+                            e.preventDefault();
+                        }
+                    });
+
+                    input.onblur = (function (currentRow, currentCol) {
+                        return function () {
+                            onCellValueChanged(currentRow + 1, currentCol + 1, this.value);
+                        };
+                    })(table.rows.length - 1, i);
+                }
+
                 newCell.style.border = "1px solid black";
                 newCell.style.padding = "5px";
             }
-            vstup.innerHTML = "INSERT INTO TABLE DEFAULT VALUES;";
 
+            // Get the headers, excluding the ID column
+            const headers = Array.from(table.rows[0].cells).map((cell, index) => {
+                if (index !== 0) {
+                    return cell.innerText.trim();
+                }
+            }).filter(header => header);
 
+            // Generate the INSERT query without including the ID column
+            let insertQueries = `INSERT INTO ${name} (${headers.join(",")}) VALUES (${headers.map(() => 'NULL').join(",")});`;
+
+            var selectedRow = parseInt(document.getElementById("row").value);
+            selectedRow += 1;
+            document.getElementById("row").value = selectedRow;
+
+            // Update the vstup innerHTML
+            vstup.innerHTML = insertQueries;
+
+            console.log(insertQueries);
+
+            sendUpdateToServer(insertQueries);
         }
 
         function sendUpdateToServer(update) { //spracovanie
@@ -152,24 +191,35 @@
         }
 
         function onCellValueChanged(row, col, value) {
-            var update = "";
+            if (col === 1) {
+                return; // Do not process the ID column
+            }
+
             var name = document.getElementById("name").value;
-            const idCellValue = document.querySelector(`input[name="data[${row}][1]"]`).value;
+            var inputElement = document.querySelector(`input[name="data[${row}][${col}]"]`);
+            var oldValue = inputElement ? inputElement.getAttribute('data-oldvalue') : null;
+            var columnName = document.querySelector(`input[name="data[1][${col}]"]`).value;
 
             if (row === 1) {
-                const oldValue = document.querySelector(`input[name="data[1][${col}]"]`).getAttribute('data-oldColumnName');
-                const columnType = getColumnType(col); // Get column type based on the values in the column
-                // Add the column definition and optional position change if necessary
-                console.log('ALTER TABLE ' + name + ' CHANGE COLUMN ${oldValue} ${value} ${columnType};');
-                update = `ALTER TABLE ${name} CHANGE COLUMN ${oldValue} ${value} ${columnType};`;
-                sendUpdateToServer(update);
-                document.querySelector(`input[name="data[1][${col}]"]`).setAttribute('data-oldColumnName', value);
+                var oldColumnName = document.querySelector(`input[name="data[${row}][${col}]"]`).getAttribute('data-oldColumnName');
+                console.log(`ALTER TABLE ${name} CHANGE ${oldColumnName} ${value} VARCHAR(50);`);
+                document.querySelector(`input[name="data[${row}][${col}]"]`).setAttribute('data-oldColumnName', value);
             } else {
-                const columnName = document.querySelector(`input[name="data[1][${col}]"]`).value;
-                console.log(`UPDATE ' + name + ' SET ${columnName} = '${value}' WHERE ID = ${idCellValue};`);
-                update = `UPDATE ${name} SET ${columnName} = '${value}' WHERE ID = ${idCellValue};`;
-                sendUpdateToServer(update);
+                console.log(`UPDATE ${name} SET ${columnName}='${value}' WHERE ID=${row - 1};`);
             }
+
+            if (inputElement) {
+                inputElement.setAttribute('data-oldvalue', value);
+            }
+
+            var command;
+            if (row === 1) {
+                command = `ALTER TABLE ${name} CHANGE ${oldColumnName} ${value} VARCHAR(50);`;
+            } else {
+                command = `UPDATE ${name} SET ${columnName}='${value}' WHERE ID=${row - 1};`;
+            }
+
+            sendUpdateToServer(command);
         }
 
         function getColumnType(col) {
