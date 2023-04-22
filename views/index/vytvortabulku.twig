@@ -64,12 +64,6 @@
         {% endfor %}
     </table>
 
-    {# <form method="post" action="../vytvortab">
-        <input type="submit" value="create" onclick="createTable()">
-    </form> #}
-    {#<form method="get" action="vytvortabulku/droptab">
-        <input type="submit" value="drop" onclick="dropTable()">
-    </form>  #}
 
     <div class="text-center mt-3">
 
@@ -199,13 +193,16 @@
             var inputElement = document.querySelector(`input[name="data[${row}][${col}]"]`);
             var oldValue = inputElement ? inputElement.getAttribute('data-oldvalue') : null;
             var columnName = document.querySelector(`input[name="data[1][${col}]"]`).value;
+            var vstup = document.getElementById("vystup").value;
 
             if (row === 1) {
                 var oldColumnName = document.querySelector(`input[name="data[${row}][${col}]"]`).getAttribute('data-oldColumnName');
                 console.log(`ALTER TABLE ${name} CHANGE ${oldColumnName} ${value} VARCHAR(50);`);
+                vstup.innerHTML = `ALTER TABLE ${name} CHANGE ${oldColumnName} ${value} VARCHAR(50);`;
                 document.querySelector(`input[name="data[${row}][${col}]"]`).setAttribute('data-oldColumnName', value);
             } else {
                 console.log(`UPDATE ${name} SET ${columnName}='${value}' WHERE ID=${row - 1};`);
+                vstup.innerHTML = `UPDATE ${name} SET ${columnName}='${value}' WHERE ID=${row - 1};`;
             }
 
             if (inputElement) {
@@ -262,8 +259,6 @@
             var selectedCol = parseInt(document.getElementById("column").value) + 1;
             var headers = document.getElementById("value")?.value.split(";") || [];
             var vystup = document.getElementById("vystup");
-            vystup.innerHTML = "CREATE TABLE " + name;
-            console.log("CREATE TABLE " + name + ";")
 
             let values = "ID INT PRIMARY KEY AUTO_INCREMENT,"; // Add AUTO_INCREMENT attribute
 
@@ -335,6 +330,8 @@
             let output = `CREATE TABLE ${name}(${values});`;
             console.log(output);
 
+            vystup.innerHTML = output;
+
             sendCreatetoServer(output);
 
             setTimeout(() => {
@@ -344,7 +341,7 @@
                     console.log(insertQueries);
                     sendUpdateToServer(insertQueries);
                 }
-            }, 500); // Delay for 0.5 seconds (500 milliseconds)
+            }, 1000); // Delay for 0.5 seconds (500 milliseconds)
 
         }
 
@@ -353,8 +350,8 @@
             var name = document.getElementById("name").value;
             table.innerHTML = "";
             var vystup = document.getElementById("vystup");
-            vystup.innerHTML = "DROP TABLE TABLE;"
             var remove = `DROP TABLE ${name};`;
+            vystup.innerHTML = remove;
             sendDropToServer(remove);
         }
 
