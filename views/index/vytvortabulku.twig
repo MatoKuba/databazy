@@ -1,6 +1,5 @@
 {% extends '../base.twig' %}
 {% block content %}
-
     <style>
         /* Custom CSS */
         #myTable {
@@ -83,6 +82,7 @@
         //cakanie na premenne neni spravene
         // odoslat tlacidlo ?..
 
+
         function addRow() {
             var table = document.getElementById("myTable");
             var vstup = document.getElementById("vystup");
@@ -157,7 +157,28 @@
                 body: JSON.stringify({ update: update })
             })
                 .then(response => {
-                    // handle the server response
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        const flash = document.createElement('div');
+                        flash.classList.add('alert', 'alert-success');
+                        flash.textContent = data.message;
+
+                        const form = document.querySelector('form');
+                        form.parentNode.insertBefore(flash, form.nextSibling);
+
+                        setTimeout(() => {
+                            flash.parentNode.removeChild(flash);
+                        }, 2000);
+                    } else {
+                        const flash = document.createElement('div');
+                        flash.classList.add('alert', 'alert-danger');
+                        flash.textContent = data.message;
+
+                        const form = document.querySelector('form');
+                        form.parentNode.insertBefore(flash, form.nextSibling);
+                    }
                 })
                 .catch(error => {
                     // handle the error
@@ -173,15 +194,36 @@
                 body: JSON.stringify({ remove: remove})
             })
                 .then(response => {
-                    // handle the server response
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        const flash = document.createElement('div');
+                        flash.classList.add('alert', 'alert-success');
+                        flash.textContent = data.message;
+
+                        const form = document.querySelector('form');
+                        form.parentNode.insertBefore(flash, form.nextSibling);
+
+                        setTimeout(() => {
+                            flash.parentNode.removeChild(flash);
+                        }, 2000);
+                    } else {
+                        const flash = document.createElement('div');
+                        flash.classList.add('alert', 'alert-danger');
+                        flash.textContent = data.message;
+
+                        const form = document.querySelector('form');
+                        form.parentNode.insertBefore(flash, form.nextSibling);
+                    }
                 })
                 .catch(error => {
                     // handle the error
                 });
         }
 
-        function sendCreatetoServer(values) { //spracovanie
-            fetch('../vytvortab', {
+        function sendCreatetoServer(values) {
+            fetch('/vytvortabulku/create', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -189,12 +231,34 @@
                 body: JSON.stringify({ values: values })
             })
                 .then(response => {
-                    // handle the server response
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        const flash = document.createElement('div');
+                        flash.classList.add('alert', 'alert-success');
+                        flash.textContent = data.message;
+
+                        const form = document.querySelector('form');
+                        form.parentNode.insertBefore(flash, form.nextSibling);
+
+                        setTimeout(() => {
+                            flash.parentNode.removeChild(flash);
+                        }, 2000);
+                    } else {
+                        const flash = document.createElement('div');
+                        flash.classList.add('alert', 'alert-danger');
+                        flash.textContent = data.message;
+
+                        const form = document.querySelector('form');
+                        form.parentNode.insertBefore(flash, form.nextSibling);
+                    }
                 })
                 .catch(error => {
-                    // handle the error
+                    console.log(error);
                 });
         }
+
 
         function onCellValueChanged(row, col, value) {
             if (col === 1) {
