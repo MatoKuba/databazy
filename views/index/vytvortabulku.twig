@@ -9,6 +9,9 @@
         input[type="text"]:focus {
             outline: 1px solid #007BFF;
         }
+        .highlight {
+            background-color: #76f57a;
+        }
     </style>
     <h2 class="text-center">Vytvor tabuľku</h2>
     <form method="POST" class="text-center" onsubmit="event.preventDefault();">
@@ -76,6 +79,9 @@
         <button type="button" id="btnDrop">Drop</button>
         <button type="button" id="btnInsert">addRow</button>
         <button type="button" id="btnCreate">Create</button>
+
+        <button type="button" id="deleteBtn">Delete</button>
+
     </div>
 
     <p id="vystup" class="text-center"></p>
@@ -118,6 +124,14 @@
 
                 newCell.style.border = "1px solid black";
                 newCell.style.padding = "5px";
+
+                // Add checkbox to first cell of new row
+                if (i === 0) {
+                    var checkbox = document.createElement("input");
+                    checkbox.type = "checkbox";
+                    checkbox.name = "checkbox";
+                    newCell.appendChild(checkbox);
+                }
             }
 
             // Get the headers, excluding the ID column
@@ -278,22 +292,40 @@
 
             for (var i = 0; i < selectedRow; i++) {
                 var row = table.insertRow(table.rows.length);
+                var isFirstRow = (i === 0);
                 for (var j = 0; j < selectedCol; j++) {
                     var cell = row.insertCell(j);
                     var value = '';
 
-                    if (j === 0) {
-                        if (i === 0) {
+                    if (i === 0) {
+                        if (j === 0) {
                             value = 'ID';
+                        } else if (headers.length > 0) {
+                            value = headers[j - 1];
                         } else {
-                            value = i; // Assign default values to the ID column on the website
+                            value = 'column' + j;
                         }
-                    } else if (headers.length > 0 && i === 0) {
+                    } else if (j === 0) {
+                        value = i;
+                    }
+
+                    if (isFirstRow || j === 0) { // Change this condition back
+                        if (i !== 0 || j !== 0) { // Add this condition to avoid adding a checkbox to the first column
+                            var checkbox = document.createElement('input');
+                            checkbox.type = 'checkbox';
+                            checkbox.name = 'check[' + (i + 1) + '][' + (j + 1) + ']';
+                            checkbox.style.margin = 'auto';
+                            cell.appendChild(checkbox);
+                        }
+                    }
+
+                    if (headers.length > 0 && i === 0 && j !== 0) { // Add the condition (j !== 0)
                         value = headers[j - 1];
-                    } else if (i === 0) {
+                    } else if (i === 0 && j !== 0) { // Add the condition (j !== 0)
                         value = 'column' + j;
                         values += value + " VARCHAR(50)" + ",";
                     }
+
                     var input = document.createElement('input');
                     input.type = 'text';
                     input.name = 'data[' + (i + 1) + '][' + (j + 1) + ']';
@@ -346,6 +378,35 @@
                 }
             }, 500); // Delay for 0.5 seconds (500 milliseconds)
 
+            checkboxFunctionality();
+        }
+
+        function checkboxFunctionality() {
+            const table = document.getElementById("myTable");
+
+            // Add event listener to each checkbox
+            const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+            checkboxes.forEach(function (checkbox) {
+                checkbox.addEventListener("click", function () {
+                    const currentRow = checkbox.parentElement.parentElement.rowIndex;
+                    const currentCol = checkbox.parentElement.cellIndex;
+
+                    // Check if checkbox is in first row
+                    if (currentRow === 0) {
+                        // Highlight column
+                        for (let i = 0; i < table.rows.length; i++) {
+                            table.rows[i].cells[currentCol].classList.toggle("highlight");
+                        }
+                    } else {
+                        // Highlight row
+                        const row = table.rows[currentRow];
+                        for (let i = 0; i < row.cells.length; i++) {
+                            row.cells[i].classList.toggle("highlight");
+                        }
+                    }
+                });
+            });
+
         }
 
         function dropTable() {
@@ -353,9 +414,71 @@
             var name = document.getElementById("name").value;
             table.innerHTML = "";
             var vystup = document.getElementById("vystup");
-            vystup.innerHTML = "DROP TABLE TABLE;"
+            vystup.innerHTML = "DROP TABLE ${name};"
             var remove = `DROP TABLE ${name};`;
             sendDropToServer(remove);
+        }
+
+        function deleteSelection() {
+            const table = document.getElementById("myTable");
+            const name = document.getElementById("name").value; // Get table name
+
+            // Get all checkboxes
+            const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+
+            // Check if any checkboxes are checked
+            let checked = false;
+            const colIndexesToDelete = new Set();
+            const rowIndexesToDelete = new Set();
+
+            checkboxes.forEach(function (checkbox) {
+                if (checkbox.checked) {
+                    checked = true;
+                    const currentRow = checkbox.parentElement.parentElement.rowIndex;
+                    const currentCol = checkbox.parentElement.cellIndex;
+
+                    // Store row or column indexes to be deleted
+                    if (currentRow === 0) {
+                        colIndexesToDelete.add(currentCol);
+                    } else {
+                        rowIndexesToDelete.add(currentRow);
+                    }
+                }
+            });
+
+            // If no checkboxes are checked, display an alert
+            if (!checked) {
+                alert("Najprv vyberte riadok alebo stĺpec, ktorý chcete odstrániť.");
+                return;
+            }
+
+            // Generate the ALTER TABLE DROP COLUMN queries
+            colIndexesToDelete.forEach(function (colIndex) {
+                const columnName = table.rows[0].cells[colIndex].querySelector('input[type="text"]').value;
+                let outputCol = `ALTER TABLE ${name} DROP COLUMN ${columnName};`;
+                console.log(outputCol);
+                sendUpdateToServer(outputCol);
+            });
+
+            // Generate the DELETE FROM queries
+            rowIndexesToDelete.forEach(function (rowIndex) {
+                const rowId = table.rows[rowIndex].cells[0].querySelector('input[type="text"]').value;
+                let output = `DELETE FROM ${name} WHERE ID = ${rowId};`;
+                console.log(output);
+                sendUpdateToServer(output);
+            });
+
+            // Delete the rows by iterating through rowIndexesToDelete
+            rowIndexesToDelete.forEach(function (rowIndex) {
+                table.deleteRow(rowIndex);
+            });
+
+            // Convert colIndexesToDelete to an array, sort it in descending order, and iterate through it
+            Array.from(colIndexesToDelete).sort((a, b) => b - a).forEach(function (colIndex) {
+                for (let i = 0; i < table.rows.length; i++) {
+                    table.rows[i].deleteCell(colIndex);
+                }
+            });
         }
 
         // pridanie event listenerov pre tlačidlá
@@ -370,9 +493,11 @@
         document.getElementById("btnCreate").addEventListener("click", function() {
             createTable();
         });
+        document.getElementById("deleteBtn").addEventListener("click", function() {
+            deleteSelection();
+        });
         // Listener for Enter key
         const formInputs = document.querySelectorAll('.form-input');
-
         formInputs.forEach(input => {
             input.addEventListener('keydown', function(event) {
                 if (event.key === 'Enter') {
@@ -380,6 +505,13 @@
                     createTable();
                 }
             });
+        });
+        // Listener for Backspace key active all the time
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Backspace' || event.key === 'Delete') {
+                event.preventDefault();
+                deleteSelection();
+            }
         });
 
     </script>
