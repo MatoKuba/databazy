@@ -9,22 +9,22 @@ const router = express.Router();
 
 router.post("/droptab",  async function (req, res) {
     // pockat na dokoncenie funkcie pre pridanie prispevku
-    console.log("tusom");
-    await Table.dropTables(req.body.remove);
-    await req.flash('success', 'Tabuľka bola vymazaná.')
-
-    // presmerovat na zobrazenie vsetkych prispevkov
-    res.redirect('/vytvor');
+    try {
+        await Table.dropTables(req.body.remove);
+        res.json({ success: true, message: 'Tabuľka bola vymazaná.' });
+    } catch (error) {
+        res.json({ success: false, message: 'Nepodarilo sa vymazať tabuľku.' });
+    }
 });
 
 router.post("/update",  async function (req, res) {
     // pockat na dokoncenie funkcie pre pridanie prispevku
-    console.log(req.body.update);
-    await Table.updateTables(req.body.update);
-    await req.flash('success', 'Tabuľka bola upravená.')
-
-    // presmerovat na zobrazenie vsetkych prispevkov
-    res.redirect('/vytvor');
+    try {
+        await Table.updateTables(req.body.update);
+        res.json({ success: true, message: 'Tabuľka bola upravená.' });
+    } catch (error) {
+        res.json({ success: false, message: 'Nepodarilo sa upraviť tabuľku.' });
+    }
 });
 
 

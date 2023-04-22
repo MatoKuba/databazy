@@ -9,7 +9,7 @@ import {IndexController} from "./controllers/IndexController.js";
 import {UserController} from "./controllers/UserController.js";
 import {PostController} from "./controllers/PostController.js";
 import {PodujatiaController} from "./controllers/PodujatiaController.js";
-import {TableController} from "./controllers/TableController.js";
+import {TableController} from "./controllers/tableController.js";
 
 // doplnit ENV parametre zo suboru .env
 dotenv.config();
@@ -38,6 +38,7 @@ app.use(sessions({
 
 // Pouzivanie flash sprav
 app.use(flash());
+
 
 // nastavnie pre twig
 app.set("twig options", {

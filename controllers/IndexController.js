@@ -34,7 +34,7 @@ router.get("/admin", authorize('admin'), function (req, res) {
     res.render('index/admin.twig');
 });
 
-router.get("/vytvor", authorize('admin'), function (req, res) {
+router.get("/vytvortabulku", authorize('admin'), function (req, res) {
     res.render('index/vytvortabulku.twig');
 
 });
@@ -50,13 +50,13 @@ router.post("/pridaj_podujatie", authorize('admin'), async function (req, res) {
     res.redirect("/podujatia");
 });
 
-router.post("/vytvortab",  async function (req, res) {
-    // pockat na dokoncenie funkcie pre pridanie prispevku
-    await Table.createTables(req.body.values);
-    await req.flash('success', 'Tabuľka bola vytvorená.')
-
-    // presmerovat na zobrazenie vsetkych prispevkov
-    res.redirect('/vytvor');
+router.post("/vytvortabulku/create", async function (req, res) {
+    try {
+        await Table.createTables(req.body.values);
+        res.json({ success: true, message: 'Tabuľka bola vytvorená.' });
+    } catch (error) {
+        res.json({ success: false, message: 'Nepodarilo sa vytvoriť tabuľku.' });
+    }
 });
 
 

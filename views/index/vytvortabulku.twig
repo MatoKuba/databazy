@@ -1,6 +1,5 @@
 {% extends '../base.twig' %}
 {% block content %}
-
     <style>
         /* Custom CSS */
         #myTable {
@@ -12,13 +11,6 @@
         .highlight {
             background-color: #76f57a;
         }
-        #vystup {
-            font-size: 16px;
-            font-weight: bold;
-            color: #333;
-            margin-top: 20px;
-        }
-
     </style>
     <h2 class="text-center">Vytvor tabuľku</h2>
     <form method="POST" class="text-center" onsubmit="event.preventDefault();">
@@ -90,12 +82,6 @@
         //cakanie na premenne neni spravene
         // odoslat tlacidlo ?..
 
-        // Global variable to keep track of the next ID
-        let nextRowId;
-
-        function initializeNextRowId() {
-            nextRowId = parseInt(document.getElementById("row").value) +1;
-        }
 
         function addRow() {
             var table = document.getElementById("myTable");
@@ -109,8 +95,7 @@
 
                 if (i === 0) {
                     // Set the correct value for the ID column
-                    newCell.innerHTML = "<input type='text' name='data[" + (table.rows.length - 1) + "][" + (i + 1) + "]' value='" + nextRowId + "' style='border: 0; outline: 0; width: 100%; height: 100%;' readonly>";
-                    nextRowId++; // Increment the next ID
+                    newCell.innerText = table.rows.length - 1;
                 } else {
                     newCell.innerHTML = "<input type='text' name='data[" + (table.rows.length - 1) + "][" + (i + 1) + "]' value='' style='border: 0; outline: 0; width: 100%; height: 100%;'>";
 
@@ -138,14 +123,6 @@
                     checkbox.type = "checkbox";
                     checkbox.name = "checkbox";
                     newCell.appendChild(checkbox);
-
-                    checkbox.addEventListener("click", function () {
-                        const currentRow = newRow.rowIndex;
-                        const row = table.rows[currentRow];
-                        for (let i = 0; i < row.cells.length; i++) {
-                            row.cells[i].classList.toggle("highlight");
-                        }
-                    });
                 }
             }
 
@@ -180,7 +157,28 @@
                 body: JSON.stringify({ update: update })
             })
                 .then(response => {
-                    // handle the server response
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        const flash = document.createElement('div');
+                        flash.classList.add('alert', 'alert-success');
+                        flash.textContent = data.message;
+
+                        const form = document.querySelector('form');
+                        form.parentNode.insertBefore(flash, form.nextSibling);
+
+                        setTimeout(() => {
+                            flash.parentNode.removeChild(flash);
+                        }, 2000);
+                    } else {
+                        const flash = document.createElement('div');
+                        flash.classList.add('alert', 'alert-danger');
+                        flash.textContent = data.message;
+
+                        const form = document.querySelector('form');
+                        form.parentNode.insertBefore(flash, form.nextSibling);
+                    }
                 })
                 .catch(error => {
                     // handle the error
@@ -196,15 +194,36 @@
                 body: JSON.stringify({ remove: remove})
             })
                 .then(response => {
-                    // handle the server response
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        const flash = document.createElement('div');
+                        flash.classList.add('alert', 'alert-success');
+                        flash.textContent = data.message;
+
+                        const form = document.querySelector('form');
+                        form.parentNode.insertBefore(flash, form.nextSibling);
+
+                        setTimeout(() => {
+                            flash.parentNode.removeChild(flash);
+                        }, 2000);
+                    } else {
+                        const flash = document.createElement('div');
+                        flash.classList.add('alert', 'alert-danger');
+                        flash.textContent = data.message;
+
+                        const form = document.querySelector('form');
+                        form.parentNode.insertBefore(flash, form.nextSibling);
+                    }
                 })
                 .catch(error => {
                     // handle the error
                 });
         }
 
-        function sendCreatetoServer(values) { //spracovanie
-            fetch('../vytvortab', {
+        function sendCreatetoServer(values) {
+            fetch('/vytvortabulku/create', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -212,12 +231,34 @@
                 body: JSON.stringify({ values: values })
             })
                 .then(response => {
-                    // handle the server response
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        const flash = document.createElement('div');
+                        flash.classList.add('alert', 'alert-success');
+                        flash.textContent = data.message;
+
+                        const form = document.querySelector('form');
+                        form.parentNode.insertBefore(flash, form.nextSibling);
+
+                        setTimeout(() => {
+                            flash.parentNode.removeChild(flash);
+                        }, 2000);
+                    } else {
+                        const flash = document.createElement('div');
+                        flash.classList.add('alert', 'alert-danger');
+                        flash.textContent = data.message;
+
+                        const form = document.querySelector('form');
+                        form.parentNode.insertBefore(flash, form.nextSibling);
+                    }
                 })
                 .catch(error => {
-                    // handle the error
+                    console.log(error);
                 });
         }
+
 
         function onCellValueChanged(row, col, value) {
             if (col === 1) {
@@ -228,7 +269,7 @@
             var inputElement = document.querySelector(`input[name="data[${row}][${col}]"]`);
             var oldValue = inputElement ? inputElement.getAttribute('data-oldvalue') : null;
             var columnName = document.querySelector(`input[name="data[1][${col}]"]`).value;
-            var vstup = document.getElementById("vystup");
+            var vstup = document.getElementById("vystup").value;
 
             if (row === 1) {
                 var oldColumnName = document.querySelector(`input[name="data[${row}][${col}]"]`).getAttribute('data-oldColumnName');
@@ -282,7 +323,7 @@
                 return "VARCHAR(50)";
             }
         }
-
+        //<input type="text" id="vstup" name="vstup" class="form-input" placeholder="nazov tabulky" required>
         function createTable() {
             var name = document.getElementById("name").value;
             if (!name) {
@@ -380,11 +421,8 @@
 
             }
             //return [name, values];
-            initializeNextRowId();
             values = values.slice(0, -1);
-
             let output = `CREATE TABLE ${name}(${values});`;
-            output = output.replace(/,/g, ',\n    '); // add newline and indentation
             console.log(output);
 
             vystup.innerHTML = output;
