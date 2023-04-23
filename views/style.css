@@ -21,20 +21,37 @@ input[type="text"]:focus {
 }
 
 /* Style the header */
-.header {
+header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background-color: var(--primary-color);
     padding: 20px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    background-color: #fff;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
-.header h1 {
+header h1 {
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+}
+
+header nav ul {
+    display: flex;
+    list-style: none;
     margin: 0;
-    font-size: 32px;
-    color: white;
-    font-family: 'Open Sans', sans-serif;
+    padding: 0;
+}
+
+header nav li {
+    margin-left: 20px;
+}
+
+header nav a {
+    text-decoration: none;
+    color: #333;
+    font-size: 16px;
+    font-weight: bold;
 }
 
 /* Style the button bar */
